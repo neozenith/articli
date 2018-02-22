@@ -9,6 +9,8 @@
   "author": "Josh Peak",
   "license": "MIT",
   "dependencies": {
-    "commander": "^2.14.1"
+    "cheerio": "^1.0.0-rc.2",
+    "commander": "^2.14.1",
+    "request": "^2.83.0"
   }
 }
