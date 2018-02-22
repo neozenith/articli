@@ -1,0 +1,14 @@
+{
+  "name": "articli",
+  "version": "1.0.0",
+  "description": "CLI tool to scrape articles from blogs or news sites with article numbers for further text analysis",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Josh Peak",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^2.14.1"
+  }
+}
