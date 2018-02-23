@@ -10,7 +10,13 @@ program
 	.version(pkg.version)
 	.option('-u, --url <url>', 'Base URL to use for scraping articles')
 	.option('-i, --id <n>', 'Single article id to process', singleId)
-	.option('-r, --range <a>..<b>', 'range of article numbers to iterate through.', range);
+	.option('-r, --range <a>..<b>', 'range of article numbers to iterate through.', range)
+	.option('-s, --random-samples <n>', 'Number of random samples to try and fetch')
+	.option('--offline', 'Disable fetching online and operate only on article cache');
+
+//TODO: online random sample, give 10 samples and target range. If file exists try getting another.
+
+//TODO: offline random sample, give 10 samples and target range. Only choose from cached files.
 
 program.parse(process.argv);
 
@@ -39,49 +45,69 @@ function scraper(articles) {
 
 function scrape(url, id) {
 	const outputPath = './data/';
-	const ua =
-		'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.167 Safari/537.36';
+	const outputHTML = outputPath + id + '.html';
+	const outputResponse = outputPath + id + '.json';
 
-	const customRequest = request.defaults({
-		headers: { 'User-Agent': ua }
-	});
 	console.log(url);
 	// TODO: look for locally cached file
 
-	customRequest(url, function(error, response, html) {
-		// First we'll check to make sure no errors occurred when making the request
-
-		if (!error) {
-			if (response.statusCode === 200) {
-				console.log('Saving full response: ' + outputPath + id + '.json');
-				fs.writeFile(outputPath + id + '.json', JSON.stringify(response.toJSON()), err => {
-					if (err) console.log(err);
-				});
-
-				console.log('Saving: ' + outputPath + id + '.html');
-				fs.writeFile(outputPath + id + '.html', html, err => {
-					if (err) console.log(err);
-				});
-			} else {
-				console.log('RESPONSE: ' + response.statusCode);
-				console.log(response.toJSON());
+	if (fs.existsSync(outputHTML)) {
+		console.log('Load from FILE');
+		fs.readFile(outputHTML, function(err, data) {
+			if (err) {
+				throw err;
 			}
+			console.log('Loaded from file: ' + outputHTML);
+			testHTML(data.toString());
+		});
+	} else {
+		console.log('Load from WEB');
 
-			const $ = cheerio.load(html);
+		// By Default user agent isn't sent so we need to shim this into the headers
+		// to make content providers think we are legit.
+		const ua =
+			'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.167 Safari/537.36';
+		const customRequest = request.defaults({
+			headers: { 'User-Agent': ua }
+		});
+		customRequest(url, function(error, response, html) {
+			// First we'll check to make sure no errors occurred when making the request
 
-			// Finally, we'll define the variables we're going to capture
+			if (!error) {
+				if (response.statusCode === 200) {
+					console.log('Saving full response: ' + outputResponse);
+					fs.writeFile(outputPath + id + '.json', JSON.stringify(response.toJSON()), err => {
+						if (err) console.log(err);
+					});
 
-			let title, release, rating;
-			const json = { title: '', release: '', rating: '' };
-		} else {
-			console.log('ERROR');
-			console.log(error);
-		}
-	});
+					console.log('Saving HTML Body: ' + outputHTML);
+					fs.writeFile(outputPath + id + '.html', html, err => {
+						if (err) console.log(err);
+					});
+
+					testHTML(html);
+				} else {
+					console.log('RESPONSE: ' + response.statusCode);
+					console.log(response.toJSON());
+				}
+			} else {
+				console.log('ERROR');
+				console.log(error);
+			}
+		});
+	}
 }
 
-if (program.range !== undefined && program.range.length > 0) {
-	scraper(program.range);
-} else {
-	scraper(program.id);
+function testHTML(htmlBody) {
+	// TODO: test for key words
+	// TODO: Parse datetime
+	const $ = cheerio.load(htmlBody);
+	console.log($('div.article__datetime').text());
+	// Finally, we'll define the variables we're going to capture
+	//
+	// let title, release, rating;
+	// const json = { title: '', release: '', rating: '' };
 }
+
+const articleIds = program.range || program.id || [];
+scraper(articleIds);
