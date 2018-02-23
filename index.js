@@ -1,5 +1,6 @@
 'use strict';
 
+const fs = require('fs');
 const program = require('commander');
 const request = require('request');
 const cheerio = require('cheerio');
@@ -32,25 +33,39 @@ function singleId(val) {
 function scraper(articles) {
 	for (const article in articles) {
 		console.log(`${article} ${articles[article]} ${program.url}\/${articles[article]}\/`);
-		scrape(`${program.url}\/${articles[article]}\/`);
+		scrape(`${program.url}\/${articles[article]}\/`, articles[article]);
 	}
 }
 
-function scrape(url) {
-	// The structure of our request call
-	// The first parameter is our URL
-	// The callback function takes 3 parameters, an error, response status code and the html
+function scrape(url, id) {
+	const outputPath = './data/';
 	const ua =
 		'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.167 Safari/537.36';
+
 	const customRequest = request.defaults({
 		headers: { 'User-Agent': ua }
 	});
 	console.log(url);
+	// TODO: look for locally cached file
+
 	customRequest(url, function(error, response, html) {
 		// First we'll check to make sure no errors occurred when making the request
+
 		if (!error) {
-			console.log(html);
-			// Next, we'll utilize the cheerio library on the returned html which will essentially give us jQuery functionality
+			if (response.statusCode === 200) {
+				console.log('Saving full response: ' + outputPath + id + '.json');
+				fs.writeFile(outputPath + id + '.json', JSON.stringify(response.toJSON()), err => {
+					if (err) console.log(err);
+				});
+
+				console.log('Saving: ' + outputPath + id + '.html');
+				fs.writeFile(outputPath + id + '.html', html, err => {
+					if (err) console.log(err);
+				});
+			} else {
+				console.log('RESPONSE: ' + response.statusCode);
+				console.log(response.toJSON());
+			}
 
 			const $ = cheerio.load(html);
 
@@ -59,6 +74,7 @@ function scrape(url) {
 			let title, release, rating;
 			const json = { title: '', release: '', rating: '' };
 		} else {
+			console.log('ERROR');
 			console.log(error);
 		}
 	});
