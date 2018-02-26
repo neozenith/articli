@@ -56,18 +56,16 @@ function scrape(url, id, offline = false) {
 	const outputHTML = outputPath + id + '.html';
 	const outputResponse = outputPath + id + '.json';
 
-	console.log(url);
-
 	if (fs.existsSync(outputHTML)) {
-		console.log('Load from FILE: ', id);
+		// console.log('Load from FILE: ', id);
 		fs.readFile(outputHTML, function(err, data) {
 			if (err) {
 				throw err;
 			}
-			testHTML(data.toString());
+			testHTML(id, data.toString());
 		});
 	} else if (!offline) {
-		console.log('Load from WEB: ', id);
+		// console.log('Load from WEB: ', id);
 
 		// By Default user agent isn't sent so we need to shim this into the headers
 		// to make content providers think we are legit.
@@ -89,7 +87,7 @@ function scrape(url, id, offline = false) {
 						if (err) console.log(err);
 					});
 
-					testHTML(html);
+					testHTML(id, html);
 				} else {
 					console.log('RESPONSE: ' + response.statusCode);
 					console.log(response.toJSON());
@@ -104,11 +102,36 @@ function scrape(url, id, offline = false) {
 	}
 }
 
-function testHTML(htmlBody) {
+function testHTML(id, htmlBody) {
+	const tests = [
+		'Bachelor of Computer Science',
+		'Engineering',
+		'Software\\s*Engineering',
+		'Bachelor of Engineering in Software Engineering',
+		'Faculty of Engineering and Built Environment',
+		'Univertsity of Newcastle',
+		'honours',
+		'Graduation',
+		'graduate'
+	];
+	let score = 0;
 	// TODO: test for key words
 	// TODO: Parse datetime
 	const $ = cheerio.load(htmlBody);
-	console.log($('div.article__datetime').text());
+	const articleText = $('div.article__body').text();
+
+	for (const t in tests) {
+		const test = tests[t].toLowerCase();
+		const re = new RegExp(test, 'g');
+		const matches = articleText.toLowerCase().match(re);
+		if (matches) {
+			score += matches.length;
+		}
+	}
+	if (score > 0) {
+		console.log($('div.article__datetime').text());
+		console.log(id, ' SCORE: ', score);
+	}
 	// Finally, we'll define the variables we're going to capture
 	//
 	// let title, release, rating;
@@ -116,12 +139,10 @@ function testHTML(htmlBody) {
 }
 
 function articlesToFetch(endpoints, randomSamples = 0, offline = false, offlineCache = {}) {
-	console.log(endpoints);
 	const N = endpoints.length - 1;
 	const start = parseInt(endpoints[0]);
 	const length = parseInt(endpoints[N] - endpoints[0] + 1);
 	const cacheSize = Object.keys(offlineCache).length;
-	console.log(offlineCache);
 
 	// Random samples are a subset of range N
 	if (randomSamples > length) {
@@ -169,7 +190,6 @@ function articlesToFetch(endpoints, randomSamples = 0, offline = false, offlineC
 	return articles;
 }
 
-console.log(program.randomSamples || 0);
 const randomSamples = program.randomSamples || 0;
 const articleRange = program.range || program.id || [];
 const articleIds = articlesToFetch(articleRange, randomSamples, program.offline, offlineCache());
