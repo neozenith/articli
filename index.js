@@ -19,16 +19,11 @@ program
 	.option('-s, --random-samples <n>', 'Number of random samples to try and fetch')
 	.option('--offline', 'Disable fetching online and operate only on article cache');
 
-//TODO: online random sample, give 10 samples and target range. If file exists try getting another.
-
-//TODO: offline random sample, give 10 samples and target range. Only choose from cached files.
-
 program.parse(process.argv);
 
-function offlineCache() {
+function listFiles(directory, extension) {
 	const list = {};
-	const extension = '.html';
-	fs.readdirSync(outputPath).forEach(file => {
+	fs.readdirSync(directory).forEach(file => {
 		if (path.extname(file) === extension) {
 			const basename = path.basename(file, extension);
 			list[basename] = file;
@@ -115,10 +110,13 @@ function testHTML(id, htmlBody) {
 		'graduate'
 	];
 	let score = 0;
-	// TODO: test for key words
 	// TODO: Parse datetime
 	const $ = cheerio.load(htmlBody);
 	const articleText = $('div.article__body').text();
+	const headline = $('h1.name.headline').text();
+	const articleDate = $('div.article__datetime').text();
+	// const author = $('div.signature').text();
+	const category = $('a.story-section__link').text();
 
 	for (const t in tests) {
 		const test = tests[t].toLowerCase();
@@ -128,14 +126,11 @@ function testHTML(id, htmlBody) {
 			score += matches.length;
 		}
 	}
-	if (score > 0) {
-		console.log($('div.article__datetime').text());
-		console.log(id, ' SCORE: ', score);
+	if (score > 0 || articleDate.length > 0) {
+		console.log(
+			`${id}\t| ${score}\t| ${category.toUpperCase()}\t| ${articleDate}\t| ${headline.trim()}`
+		);
 	}
-	// Finally, we'll define the variables we're going to capture
-	//
-	// let title, release, rating;
-	// const json = { title: '', release: '', rating: '' };
 }
 
 function articlesToFetch(endpoints, randomSamples = 0, offline = false, offlineCache = {}) {
@@ -191,6 +186,7 @@ function articlesToFetch(endpoints, randomSamples = 0, offline = false, offlineC
 }
 
 const randomSamples = program.randomSamples || 0;
+const offlineCache = listFiles('./data/', '.html');
 const articleRange = program.range || program.id || [];
-const articleIds = articlesToFetch(articleRange, randomSamples, program.offline, offlineCache());
+const articleIds = articlesToFetch(articleRange, randomSamples, program.offline, offlineCache);
 scraper(articleIds, program.offline);
