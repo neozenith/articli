@@ -17,7 +17,8 @@ program
 	.option('-i, --id <n>', 'Single article id to process', singleId)
 	.option('-r, --range <a>..<b>', 'range of article numbers to iterate through.', range)
 	.option('-s, --random-samples <n>', 'Number of random samples to try and fetch')
-	.option('--offline', 'Disable fetching online and operate only on article cache');
+	.option('--offline', 'Disable fetching online and operate only on article cache')
+	.option('--scored <n>', 'Only display results with a score >= n');
 
 program.parse(process.argv);
 
@@ -126,7 +127,11 @@ function testHTML(id, htmlBody) {
 			score += matches.length;
 		}
 	}
-	if (score > 0 || articleDate.length > 0) {
+	if (program.scored && score >= parseInt(program.scored)) {
+		console.log(
+			`${id}\t| ${score}\t| ${category.toUpperCase()}\t| ${articleDate}\t| ${headline.trim()}`
+		);
+	} else if (!program.scored && (score > 0 || articleDate.length > 0)) {
 		console.log(
 			`${id}\t| ${score}\t| ${category.toUpperCase()}\t| ${articleDate}\t| ${headline.trim()}`
 		);
