@@ -127,11 +127,10 @@ function testHTML(id, htmlBody) {
 			score += matches.length;
 		}
 	}
-	if (program.scored && score >= parseInt(program.scored)) {
-		console.log(
-			`${id}\t| ${score}\t| ${category.toUpperCase()}\t| ${articleDate}\t| ${headline.trim()}`
-		);
-	} else if (!program.scored && (score > 0 || articleDate.length > 0)) {
+
+	const scoredFilter = program.scored && score >= parseInt(program.scored);
+	const parsableArticle = !program.scored && (score > 0 || articleDate.length > 0);
+	if (scoredFilter || parsableArticle) {
 		console.log(
 			`${id}\t| ${score}\t| ${category.toUpperCase()}\t| ${articleDate}\t| ${headline.trim()}`
 		);
