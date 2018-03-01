@@ -1,11 +1,11 @@
 #! /bin/bash
 
-TIMEOUT=10
-SAMPLE=10
+TIMEOUT=5
+SAMPLE=8
 
 while [ 1 == 1 ] ;
 do
-	./articli -u http://www.theherald.com.au/story -r 105000..110000 -s $SAMPLE
+	./articli -u http://www.theherald.com.au/story -r 374000..375000 -s $SAMPLE
 	echo "Waiting for $TIMEOUT seconds..."
 	sleep $TIMEOUT
 	echo `date`

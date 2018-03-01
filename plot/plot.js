@@ -19,7 +19,8 @@ var xAxis = d3.svg
 var yAxis = d3.svg
 	.axis()
 	.scale(y)
-	.orient('left');
+	.orient('left')
+	.ticks(10, '$');
 
 var chart = d3
 	.select('#chart')
@@ -74,6 +75,17 @@ d3.csv('data.csv', type, function(error, data) {
 			return height - y(d.value);
 		})
 		.attr('width', x.rangeBand());
+
+	chart
+		.append('g')
+		.attr('class', 'y axis')
+		.call(yAxis)
+		.append('text')
+		.attr('transform', 'rotate(-90)')
+		.attr('y', 6)
+		.attr('dy', '.71em')
+		.style('text-anchor', 'end')
+		.text('Spend');
 });
 
 function type(d) {
