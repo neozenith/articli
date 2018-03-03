@@ -5,6 +5,7 @@ const path = require('path');
 const program = require('commander');
 const request = require('request');
 const cheerio = require('cheerio');
+const moment = require('moment');
 const pkg = require('./package.json');
 
 require('dotenv').config();
@@ -116,6 +117,8 @@ function testHTML(id, htmlBody) {
 	const articleText = $('div.article__body').text();
 	const headline = $('h1.name.headline').text();
 	const articleDate = $('div.article__datetime').text();
+	// November 13 2007 - 8:28PM
+	const parsedDate = moment(articleDate, 'MMMM D YYYY - h:mmA');
 	// const author = $('div.signature').text();
 	const category = $('a.story-section__link').text();
 
@@ -132,7 +135,9 @@ function testHTML(id, htmlBody) {
 	const parsableArticle = !program.scored && (score > 0 || articleDate.length > 0);
 	if (scoredFilter || parsableArticle) {
 		console.log(
-			`${id}\t| ${score}\t| ${category.toUpperCase()}\t| ${articleDate}\t| ${headline.trim()}`
+			`${id}\t| ${score}\t| ${category.toUpperCase()}\t| ${parsedDate.format(
+				'YYYY-MMM-DD'
+			)}\t| ${headline.trim()}`
 		);
 	}
 }
