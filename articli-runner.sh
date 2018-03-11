@@ -1,7 +1,7 @@
 #! /bin/bash
 
-TIMEOUT=5
-SAMPLE=8
+TIMEOUT=10
+SAMPLE=12
 
 while [ 1 == 1 ] ;
 do

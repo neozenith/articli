@@ -55,6 +55,8 @@ function scrape(url, id, offline = false) {
 
 	if (fs.existsSync(outputHTML)) {
 		// console.log('Load from FILE: ', id);
+		// TODO: Because this is async it queues up too many open file handles
+		// before resolving any of them
 		fs.readFile(outputHTML, function(err, data) {
 			if (err) {
 				throw err;
