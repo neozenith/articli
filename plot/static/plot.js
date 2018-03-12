@@ -1,3 +1,4 @@
+'use strict';
 console.log('Plot ENTER');
 
 var data = [4, 8, 15, 16, 23, 42];
