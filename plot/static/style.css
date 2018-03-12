@@ -1,0 +1,42 @@
+	body {
+		font-family: "Verdana", "Sans Serif"
+	}
+
+	#chart rect {
+		fill: steelblue;
+	}
+
+	#chart text {
+		fill: black;
+		font: 10px sans-serif;
+		text-anchor: end;
+	}
+
+	.bar {
+		fill: steelblue;
+	}
+
+	.axis text {
+		fill: darkgrey;
+		font: 10px sans-serif;
+	}
+
+	.axis path,
+	.axis line {
+		fill: none;
+		stroke: #000;
+		shape-rendering: crispEdges;
+	}
+
+	.x.axis path {
+	}
+
+	header h1{
+		color: #333;
+	}
+	article {
+		align: center;
+	}
+	footer {
+		color: lightgray;
+	}
