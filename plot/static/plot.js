@@ -1,7 +1,6 @@
 'use strict';
 console.log('Plot ENTER');
 
-var data = [4, 8, 15, 16, 23, 42];
 var margin = { top: 20, right: 30, bottom: 50, left: 40 },
 	width = 960 - margin.left - margin.right,
 	height = 500 - margin.top - margin.bottom;
