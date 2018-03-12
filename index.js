@@ -102,6 +102,7 @@ function scrape(url, id, offline = false) {
 }
 
 function testHTML(id, htmlBody) {
+	// TODO: Load these from tests YAML file
 	const tests = [
 		'Bachelor of Computer Science',
 		'Engineering',
@@ -114,7 +115,6 @@ function testHTML(id, htmlBody) {
 		'graduate'
 	];
 	let score = 0;
-	// TODO: Parse datetime
 	const $ = cheerio.load(htmlBody);
 	const articleText = $('div.article__body').text();
 	const headline = $('h1.name.headline').text();
