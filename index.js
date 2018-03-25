@@ -57,12 +57,8 @@ function scrape(url, id, offline = false) {
 		// console.log('Load from FILE: ', id);
 		// TODO: Because this is async it queues up too many open file handles
 		// before resolving any of them
-		fs.readFile(outputHTML, function(err, data) {
-			if (err) {
-				throw err;
-			}
-			testHTML(id, data.toString());
-		});
+		const data = fs.readFileSync(outputHTML);
+		testHTML(id, data.toString());
 	} else if (!offline) {
 		// console.log('Load from WEB: ', id);
 
